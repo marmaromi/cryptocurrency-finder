@@ -1,0 +1,27 @@
+.parallax {
+    /* The image used */
+    background-image: url("/images/Parallax_image.webp");
+    /* Set a specific height */
+    min-height: 100px;
+    /* Create the parallax scrolling effect */
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+@media (min-width: 1200px) {
+    .container {
+        max-width: 970px;
+    }
+}
+
+/* #flexSwitchCheckDefault:focus {
+    outline: none;
+    box-shadow: none;
+} */
+
+.coinImage {
+    width:50px;
+    height: auto;
+}
