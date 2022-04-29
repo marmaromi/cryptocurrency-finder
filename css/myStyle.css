@@ -2,7 +2,7 @@
     /* The image used */
     background-image: url("/images/Parallax_image.webp");
     /* Set a specific height */
-    min-height: 100px;
+    min-height: 400px;
     /* Create the parallax scrolling effect */
     background-attachment: fixed;
     background-position: center;
@@ -15,11 +15,6 @@
         max-width: 970px;
     }
 }
-
-/* #flexSwitchCheckDefault:focus {
-    outline: none;
-    box-shadow: none;
-} */
 
 .coinImage {
     width:50px;
