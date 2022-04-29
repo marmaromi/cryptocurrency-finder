@@ -7,21 +7,32 @@ $(function () {
     $(`#searchBar`).html(`<div class="row float-md-end w-md-auto"> <div class="col-8"> <form autocomplete="off"> <div class="autocomplete"> <input type="text" id="searchBar" class="form-control" placeholder="Search a coin"> </div> </form> </div> <div class="col gx-2"> <button id="searchButton" class="btn btn-outline-success">Search</button> </div> </div>`);
 
     $("#homeButton").on("click", function () {
+        clearInterval(JSON.parse(localStorage.getItem("myInterval")));
         $(`#searchBar`).html(`<div class="row float-md-end w-md-auto"> <div class="col-8"> <form autocomplete="off"> <div class="autocomplete"> <input type="text" id="searchBar" class="form-control" placeholder="Search a coin"> </div> </form> </div> <div class="col gx-2"> <button id="searchButton" class="btn btn-outline-success">Search</button> </div> </div>`);
         fetchData();
     });
 
 
     $("#liveReportsButton").on("click", function () {
-        $.ajax({
-            url: "../html/live-reports.html",
-            success: show => $(`#sectionMain`).html(show),
-            error: err => console.log(err)
-        });
+        clearInterval(JSON.parse(localStorage.getItem("myInterval")));
+        const checkedToggles = JSON.parse(localStorage.getItem("togglesOn"));
+        $(`#searchBar`).html("");
+        if (checkedToggles !== null && checkedToggles.length > 0) {
+            $.ajax({
+                url: "../html/live-reports.html",
+                success: show => $(`#sectionMain`).html(show),
+                error: err => console.log(err)
+            });
+        }
+        else{
+            $(`#sectionMain`).html(`<div class="d-flex justify-content-center m-4">No coins selected</div>`)
+        }
     });
 
 
     $("#aboutButton").on("click", function () {
+        clearInterval(JSON.parse(localStorage.getItem("myInterval")));
+        $(`#searchBar`).html("");
         $.ajax({
             url: "../html/about.html",
             success: show => $(`#sectionMain`).html(show),
@@ -30,17 +41,21 @@ $(function () {
     });
 
 
+    // Search a coin by name
     $("#searchButton").on("click", function () {
-        let coin = $("input[id='searchBar']").val();
-        let coinList = JSON.parse(localStorage.getItem("coinListNamesOnly"));
-        // console.log(coin);
-        if (coinList.includes(coin)) {
-            let coinObjects = JSON.parse(localStorage.getItem("coinList"));
-            let selectedCoin = coinObjects.filter(obj => obj.id === coin);
-            displayCoins(selectedCoin, 1)
+        const searchValue = $("input[id='searchBar']").val();
+        const coinList = JSON.parse(localStorage.getItem("coinListNamesOnly"));
+        const searchResults = coinList.filter(list => list.includes(searchValue));
+        if (searchResults.length > 0 && searchValue !== "") {
+            const coinObjects = JSON.parse(localStorage.getItem("coinList"));
+            const selectedCoins = [];
+            for (const coin of searchResults) {
+                selectedCoins.push(coinObjects.filter(obj => obj.id === coin)[0]);
+            }
+            displayCoins(selectedCoins, selectedCoins.length)
         }
         else {
-            //load home
+            $(`#sectionMain`).html(`<div class="d-flex justify-content-center m-4">Coin not found</div>`)
         }
     });
 
@@ -57,7 +72,6 @@ $(function () {
                 }
                 localStorage.setItem("coinListNamesOnly", JSON.stringify(array));
                 localStorage.setItem("coinList", JSON.stringify(coinList));
-                // console.log(coinList,displayLimit);
                 displayCoins(coinList, displayLimit);
             },
             error: err => console.log(err)
@@ -65,7 +79,6 @@ $(function () {
     }; fetchData();
 
     function displayCoins(coinList, limit) {
-        // console.log(coinList[0].symbol);
         $(`#sectionMain`).html(`<div id="coinCards" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-2"></div>`)
         let coinCard = "";
         for (let i = 0; i < limit; i++) {
@@ -99,7 +112,6 @@ $(function () {
                         </div>
                     </div>
                 </div>`
-            // console.log(coinCard);
             $("#coinCards").append(coinCard)
         }
 
@@ -142,7 +154,6 @@ $(function () {
     }
 
     const getCoinDataFromApi = (coinName, successFunc) => {
-        console.log(coinName);
         $.ajax({
             url: `https://api.coingecko.com/api/v3/coins/${coinName}`,
             success: coinData => addCoinToLocalStorage(coinData, successFunc),
@@ -163,19 +174,26 @@ $(function () {
         return JSON.parse(localStorage.getItem(coinName))
     }
 
+    const removeCoinFromLocalStorage = (checkedToggles, coin) => {
+        const equals = (a, b) =>
+            a.length === b.length &&
+            a.every((v, i) => v === b[i]);
+        const index = checkedToggles.findIndex(arr => equals(arr, coin));
+        checkedToggles.splice(index, 1);
+        localStorage.setItem("togglesOn", JSON.stringify(checkedToggles));
+    }
+
+    // Load more data on coin
     $("#sectionMain").on("show.bs.collapse", ".collapse", function () {
-        console.log(this);
         let coinData = getCoinFromLocalStorage($(this).attr("name"))
         if (coinData === null) {
             $(`button[name$="${$(this).attr("name")}"]`).html(`<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...`);
             getCoinDataFromApi($(this).attr("name"), showCoinDataInCollapse);
         }
-
     });
 
 
     const showCoinDataInCollapse = coinData => {
-        // console.log(coinData.id);
         let dataToShow = `
                 <img src="${coinData.image.small}" srcset="${coinData.image.small}" class="coinImage"><br>
                 <p>USD price: ${coinData.market_data.current_price.usd}$</p>
@@ -185,7 +203,6 @@ $(function () {
             `;
         $(`#collapse_card_${coinData.id}`).html(dataToShow)
         $(`button[name$="${coinData.id}"]`).html(`More Info`);
-        // console.log(coinData.id);
     }
 
 
@@ -196,16 +213,13 @@ $(function () {
 
             if (checkedToggles !== null) {
                 numberOfCheckedToggles = Object.keys(JSON.parse(localStorage.getItem("togglesOn"))).length;
-                // console.log(numberOfCheckedToggles);
             }
             else {
                 numberOfCheckedToggles = 0;
-                // localStorage.setItem("togglesOn",JSON.stringify([]));
                 checkedToggles = [];
             };
 
             checkedToggles.push([$(this).attr("name"), $(this).attr("symbol")]);
-            // console.log(checkedToggles);
             localStorage.setItem("togglesOn", JSON.stringify(checkedToggles));
 
             if (numberOfCheckedToggles >= 5) {
@@ -216,9 +230,7 @@ $(function () {
         }
         else {//remove coin
             let checkedToggles = JSON.parse(localStorage.getItem("togglesOn"));
-            let index = checkedToggles.indexOf([$(this).attr("name"), $(this).attr("symbol")]);
-            checkedToggles.splice(index, 1);
-            localStorage.setItem("togglesOn", JSON.stringify(checkedToggles));
+            removeCoinFromLocalStorage(checkedToggles, [$(this).attr("name"), $(this).attr("symbol")])
         }
     });
 
@@ -228,26 +240,18 @@ $(function () {
 
         if (checkedToggles !== null) {
             numberOfCheckedToggles = Object.keys(JSON.parse(localStorage.getItem("togglesOn"))).length;
-            // console.log(numberOfCheckedToggles);
         }
         else {
             numberOfCheckedToggles = 0;
-            // localStorage.setItem("togglesOn",JSON.stringify([]));
             checkedToggles = [];
         };
 
         if (this.checked === true) {//add coin
             checkedToggles.push([$(this).attr("name"), $(this).attr("symbol")]);
-            // console.log(checkedToggles);
             localStorage.setItem("togglesOn", JSON.stringify(checkedToggles));
         }
         else {//remove coin
-            const equals = (a, b) =>
-                a.length === b.length &&
-                a.every((v, i) => v === b[i]);
-            const index = checkedToggles.findIndex(arr => equals(arr, [$(this).attr("name"), $(this).attr("symbol")]));
-            checkedToggles.splice(index, 1);
-            localStorage.setItem("togglesOn", JSON.stringify(checkedToggles));
+            removeCoinFromLocalStorage(checkedToggles, [$(this).attr("name"), $(this).attr("symbol")])
         }
 
         numberOfCheckedToggles = Object.keys(checkedToggles).length;
@@ -259,21 +263,22 @@ $(function () {
         }
     });
 
-
     const isTheSwitchChecked = (coin) => {
         const checkedToggles = JSON.parse(localStorage.getItem("togglesOn"));
+        // if (checkedToggles === null) {
+        //     localStorage.setItem("togglesOn", JSON.stringify([]));
+        // }
+        // console.log(checkedToggles);
         try {
             const equals = (a, b) =>
                 a.length === b.length &&
                 a.every((v, i) => v === b[i]);
-            // console.log(checkedToggles);
             const found = checkedToggles.find(arr => equals(arr, coin));
-            // console.log(found);
             if (found !== undefined) {
                 return "checked";
             }
         } catch (error) {
-            console.log(error);
+            // console.log(error);
             return
         }
     }
@@ -293,7 +298,5 @@ $(function () {
     $("#modalOk").on("click", function () {
         location.reload();
     });
-
-
 
 });
