@@ -1,6 +1,6 @@
 .parallax {
     /* The image used */
-    background-image: url("/images/Parallax_image.webp");
+    background-image: url("images/Parallax_image.webp");
     /* Set a specific height */
     min-height: 300px;
     /* Create the parallax scrolling effect */
