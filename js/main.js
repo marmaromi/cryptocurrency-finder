@@ -4,11 +4,16 @@
 
 $(function () {
 
-    $(`#searchBar`).html(`<div class="row float-md-end w-md-auto"> <div class="col-8"> <form autocomplete="off"> <div class="autocomplete"> <input type="text" id="searchBar" class="form-control" placeholder="Search a coin"> </div> </form> </div> <div class="col gx-2"> <button id="searchButton" class="btn btn-outline-success">Search</button> </div> </div>`);
 
-    $("#homeButton").on("click", function () {
+    function addSearchBar() {
+        const searchBar = `<div class="row float-md-end w-md-auto"> <div class="col-8"> <form autocomplete="off"> <div class="autocomplete"> <input type="text" id="searchBox" class="form-control" placeholder="Search a coin"> </div> </form> </div> <div class="col gx-2"> <button id="searchButton" class="btn btn-outline-success">Search</button> </div> </div>`;
+        $(`#searchBar`).html(searchBar);
+    } addSearchBar();
+
+
+    $("#topMenu").on("click", "#homeButton", function () {
         clearInterval(JSON.parse(localStorage.getItem("myInterval")));
-        $(`#searchBar`).html(`<div class="row float-md-end w-md-auto"> <div class="col-8"> <form autocomplete="off"> <div class="autocomplete"> <input type="text" id="searchBar" class="form-control" placeholder="Search a coin"> </div> </form> </div> <div class="col gx-2"> <button id="searchButton" class="btn btn-outline-success">Search</button> </div> </div>`);
+        addSearchBar();
         fetchData();
     });
 
@@ -19,7 +24,7 @@ $(function () {
         $(`#searchBar`).html("");
         if (checkedToggles !== null && checkedToggles.length > 0) {
             $.ajax({
-                url: "https://marmaromi.github.io/project_2/html/live-reports.html",
+                url: "../html/live-reports.html",
                 success: show => $(`#sectionMain`).html(show),
                 error: err => console.log(err)
             });
@@ -34,7 +39,7 @@ $(function () {
         clearInterval(JSON.parse(localStorage.getItem("myInterval")));
         $(`#searchBar`).html("");
         $.ajax({
-            url: "https://marmaromi.github.io/project_2/html/about.html",
+            url: "../html/about.html",
             success: show => $(`#sectionMain`).html(show),
             error: err => console.log(err)
         });
@@ -42,9 +47,9 @@ $(function () {
 
 
     // Search a coin by name
-    $("#searchButton").on("click", function () {
+    $("#searchBar").on("click", "#searchButton", function () {
         // simple search
-        let searchValue = $("input[id='searchBar']").val();
+        let searchValue = $("input[id='searchBox']").val();
         let coinList = JSON.parse(localStorage.getItem("coinListSymbolOnly"));
         if (coinList.includes(searchValue) && searchValue !== "") {
             let coinObjects = JSON.parse(localStorage.getItem("coinList"));
@@ -54,7 +59,7 @@ $(function () {
         else {
             $(`#sectionMain`).html(`<div class="d-flex justify-content-center m-4">Coin not found</div>`)
         }
-        
+
         // Improves Search
         // const searchValue = $("input[id='searchBar']").val();
         // const coinList = JSON.parse(localStorage.getItem("coinListSymbolOnly"));
@@ -77,7 +82,7 @@ $(function () {
                                 <span class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status" aria-hidden="true"></span>
                             </div>`);
         $.ajax({
-            url: "https://api.coingecko.com/api/v3/coins",
+            url: "https://api.coingecko.com/api/v3/coins/",
             success: coinList => {
                 let array = [];
                 for (const coin of coinList) {
@@ -203,6 +208,7 @@ $(function () {
             $(`button[name$="${$(this).attr("name")}"]`).html(`<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...`);
             getCoinDataFromApi($(this).attr("name"), showCoinDataInCollapse);
         }
+        else showCoinDataInCollapse(coinData);
     });
 
 
