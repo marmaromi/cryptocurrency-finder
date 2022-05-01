@@ -19,7 +19,7 @@ $(function () {
         $(`#searchBar`).html("");
         if (checkedToggles !== null && checkedToggles.length > 0) {
             $.ajax({
-                url: "../html/live-reports.html",
+                url: "https://marmaromi.github.io/project_2/html/live-reports.html",
                 success: show => $(`#sectionMain`).html(show),
                 error: err => console.log(err)
             });
@@ -34,7 +34,7 @@ $(function () {
         clearInterval(JSON.parse(localStorage.getItem("myInterval")));
         $(`#searchBar`).html("");
         $.ajax({
-            url: "../html/about.html",
+            url: "https://marmaromi.github.io/project_2/html/about.html",
             success: show => $(`#sectionMain`).html(show),
             error: err => console.log(err)
         });
