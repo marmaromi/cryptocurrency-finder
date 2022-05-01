@@ -24,7 +24,7 @@ $(function () {
                 error: err => console.log(err)
             });
         }
-        else{
+        else {
             $(`#sectionMain`).html(`<div class="d-flex justify-content-center m-4">No coins selected</div>`)
         }
     });
@@ -43,34 +43,47 @@ $(function () {
 
     // Search a coin by name
     $("#searchButton").on("click", function () {
-        const searchValue = $("input[id='searchBar']").val();
-        const coinList = JSON.parse(localStorage.getItem("coinListNamesOnly"));
-        const searchResults = coinList.filter(list => list.includes(searchValue));
-        if (searchResults.length > 0 && searchValue !== "") {
-            const coinObjects = JSON.parse(localStorage.getItem("coinList"));
-            const selectedCoins = [];
-            for (const coin of searchResults) {
-                selectedCoins.push(coinObjects.filter(obj => obj.id === coin)[0]);
-            }
-            displayCoins(selectedCoins, selectedCoins.length)
+        // simple search
+        let searchValue = $("input[id='searchBar']").val();
+        let coinList = JSON.parse(localStorage.getItem("coinListSymbolOnly"));
+        if (coinList.includes(searchValue) && searchValue !== "") {
+            let coinObjects = JSON.parse(localStorage.getItem("coinList"));
+            let selectedCoin = coinObjects.filter(obj => obj.symbol === searchValue);
+            displayCoins(selectedCoin, 1)
         }
         else {
             $(`#sectionMain`).html(`<div class="d-flex justify-content-center m-4">Coin not found</div>`)
         }
+        
+        // Improves Search
+        // const searchValue = $("input[id='searchBar']").val();
+        // const coinList = JSON.parse(localStorage.getItem("coinListSymbolOnly"));
+        // const searchResults = coinList.filter(list => list.includes(searchValue));
+        // if (searchResults.length > 0 && searchValue !== "") {
+        //     const coinObjects = JSON.parse(localStorage.getItem("coinList"));
+        //     const selectedCoins = [];
+        //     for (const coin of searchResults) {
+        //         selectedCoins.push(coinObjects.filter(obj => obj.symbol === coin)[0]);
+        //     }
+        //     displayCoins(selectedCoins, selectedCoins.length)
+        // }
+        // else {
+        //     $(`#sectionMain`).html(`<div class="d-flex justify-content-center m-4">Coin not found</div>`)
+        // }
     });
 
-    function fetchData(displayLimit = 10) {
+    function fetchData(displayLimit = 30) {
         $(`#sectionMain`).html(`<div class="d-flex justify-content-center">
                                 <span class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status" aria-hidden="true"></span>
                             </div>`);
         $.ajax({
-            url: "https://api.coingecko.com/api/v3/coins/",
+            url: "https://api.coingecko.com/api/v3/coins",
             success: coinList => {
                 let array = [];
                 for (const coin of coinList) {
-                    array.push(coin.id);
+                    array.push(coin.symbol);
                 }
-                localStorage.setItem("coinListNamesOnly", JSON.stringify(array));
+                localStorage.setItem("coinListSymbolOnly", JSON.stringify(array));
                 localStorage.setItem("coinList", JSON.stringify(coinList));
                 displayCoins(coinList, displayLimit);
             },

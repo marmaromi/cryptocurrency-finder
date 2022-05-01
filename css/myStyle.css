@@ -2,13 +2,37 @@
     /* The image used */
     background-image: url("/images/Parallax_image.webp");
     /* Set a specific height */
-    min-height: 400px;
+    min-height: 300px;
     /* Create the parallax scrolling effect */
     background-attachment: fixed;
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
 }
+
+.parallax > p {
+    color: rgb(219, 219, 219);
+    font-family: cursive;
+    font-size: 400%;
+    padding: 100px 0;
+    text-align: center;
+}
+
+.glow {
+    text-align: center;
+    -webkit-animation: glow 5s ease-in-out infinite alternate;
+    -moz-animation: glow 5s ease-in-out infinite alternate;
+    animation: glow 5s ease-in-out infinite alternate;
+  }
+  
+  @-webkit-keyframes glow {
+    from {
+      text-shadow: 0 0 1px #fff, 0 0 2px #fff, 0 0 3px #a24206, 0 0 4px #a24206, 0 0 5px #a24206, 0 0 6px #a24206, 0 0 7px #a24206;
+    }
+    to {
+      text-shadow: 0 0 1px #fff, 0 0 2px #d6b23e, 0 0 3px #d6b23e, 0 0 4px #d6b23e, 0 0 5px #d6b23e, 0 0 6px #d6b23e, 0 0 7px #d6b23e;
+    }
+  }
 
 @media (min-width: 1200px) {
     .container {
