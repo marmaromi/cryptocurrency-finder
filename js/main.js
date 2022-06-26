@@ -31,7 +31,7 @@ $(function () {
         $(`#searchBar`).html("");
         if (checkedToggles !== null && checkedToggles.length > 0) {
             $.ajax({
-                url: "../html/live-reports.html",
+                url: "html/live-reports.html",
                 success: show => $(`#sectionMain`).html(show),
                 error: err => console.log(err)
             });
@@ -45,7 +45,7 @@ $(function () {
         clearInterval(JSON.parse(localStorage.getItem("myInterval")));
         $(`#searchBar`).html("");
         $.ajax({
-            url: "../html/about.html",
+            url: "html/about.html",
             success: show => $(`#sectionMain`).html(show),
             error: err => console.log(err)
         });
