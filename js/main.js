@@ -4,9 +4,17 @@
 
 $(function () {
 
+    // Clear local storage
+    (function () {
+        const togglesOn = JSON.parse(localStorage.getItem("togglesOn"));
+        localStorage.clear();
+        if (togglesOn !== null && togglesOn !== []) {
+            localStorage.setItem("togglesOn", JSON.stringify(togglesOn));
+        }
+    })();
 
     function addSearchBar() {
-        const searchBar = `<div class="row float-md-end w-md-auto"> <div class="col-8"> <form autocomplete="off"> <div class="autocomplete"> <input type="text" id="searchBox" class="form-control" placeholder="Search a coin"> </div> </form> </div> <div class="col gx-2"> <button id="searchButton" class="btn btn-outline-success">Search</button> </div> </div>`;
+        const searchBar = `<div class="row float-md-end w-md-auto"> <div class="col-8"> <input type="text" id="searchBox" class="form-control" placeholder="Search a coin"> </div> <div class="col gx-2"> <button id="searchButton" class="btn btn-outline-primary btn-light">Search</button> </div> </div>`;
         $(`#searchBar`).html(searchBar);
     } addSearchBar();
 
@@ -17,14 +25,13 @@ $(function () {
         fetchData();
     });
 
-
-    $("#liveReportsButton").on("click", function () {
+    $("#topMenu").on("click", "#liveReportsButton", function () {
         clearInterval(JSON.parse(localStorage.getItem("myInterval")));
         const checkedToggles = JSON.parse(localStorage.getItem("togglesOn"));
         $(`#searchBar`).html("");
         if (checkedToggles !== null && checkedToggles.length > 0) {
             $.ajax({
-                url: "https://marmaromi.github.io/project_2/html/live-reports.html",
+                url: "../html/live-reports.html",
                 success: show => $(`#sectionMain`).html(show),
                 error: err => console.log(err)
             });
@@ -34,22 +41,20 @@ $(function () {
         }
     });
 
-
-    $("#aboutButton").on("click", function () {
+    $("#topMenu").on("click", "#aboutButton", function () {
         clearInterval(JSON.parse(localStorage.getItem("myInterval")));
         $(`#searchBar`).html("");
         $.ajax({
-            url: "https://marmaromi.github.io/project_2/html/about.html",
+            url: "../html/about.html",
             success: show => $(`#sectionMain`).html(show),
             error: err => console.log(err)
         });
     });
 
 
-    // Search a coin by name
-    $("#searchBar").on("click", "#searchButton", function () {
+    const searchCoin = () => {
         // simple search
-        let searchValue = $("input[id='searchBox']").val();
+        let searchValue = $("input[id='searchBox']").val().toLowerCase();
         let coinList = JSON.parse(localStorage.getItem("coinListSymbolOnly"));
         if (coinList.includes(searchValue) && searchValue !== "") {
             let coinObjects = JSON.parse(localStorage.getItem("coinList"));
@@ -59,23 +64,10 @@ $(function () {
         else {
             $(`#sectionMain`).html(`<div class="d-flex justify-content-center m-4">Coin not found</div>`)
         }
+    }
+    $("#searchBar").on("click", "#searchButton", searchCoin);
+    $("#searchBar").on("keydown", "#searchBox", (e) => { if (e.key === 'Enter') searchCoin() });
 
-        // Improves Search
-        // const searchValue = $("input[id='searchBar']").val();
-        // const coinList = JSON.parse(localStorage.getItem("coinListSymbolOnly"));
-        // const searchResults = coinList.filter(list => list.includes(searchValue));
-        // if (searchResults.length > 0 && searchValue !== "") {
-        //     const coinObjects = JSON.parse(localStorage.getItem("coinList"));
-        //     const selectedCoins = [];
-        //     for (const coin of searchResults) {
-        //         selectedCoins.push(coinObjects.filter(obj => obj.symbol === coin)[0]);
-        //     }
-        //     displayCoins(selectedCoins, selectedCoins.length)
-        // }
-        // else {
-        //     $(`#sectionMain`).html(`<div class="d-flex justify-content-center m-4">Coin not found</div>`)
-        // }
-    });
 
     function fetchData(displayLimit = 30) {
         $(`#sectionMain`).html(`<div class="d-flex justify-content-center">
@@ -97,7 +89,7 @@ $(function () {
     }; fetchData();
 
     function displayCoins(coinList, limit) {
-        $(`#sectionMain`).html(`<div id="coinCards" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-2"></div>`)
+        $(`#sectionMain`).html(`<div id="coinCards" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3"></div>`)
         let coinCard = "";
         for (let i = 0; i < limit; i++) {
             coinCard = `
@@ -130,7 +122,7 @@ $(function () {
                         </div>
                     </div>
                 </div>`
-            $("#coinCards").append(coinCard)
+            $("#coinCards").append(coinCard);
         }
 
         $(`#sectionMain`).append(`
@@ -189,7 +181,7 @@ $(function () {
     }
 
     const getCoinFromLocalStorage = (coinName) => {
-        return JSON.parse(localStorage.getItem(coinName))
+        return JSON.parse(localStorage.getItem(coinName));
     }
 
     const removeCoinFromLocalStorage = (checkedToggles, coin) => {
@@ -201,9 +193,9 @@ $(function () {
         localStorage.setItem("togglesOn", JSON.stringify(checkedToggles));
     }
 
-    // Load more data on coin
+    // Load more data on coin in collapse
     $("#sectionMain").on("show.bs.collapse", ".collapse", function () {
-        let coinData = getCoinFromLocalStorage($(this).attr("name"))
+        let coinData = getCoinFromLocalStorage($(this).attr("name"));
         if (coinData === null) {
             $(`button[name$="${$(this).attr("name")}"]`).html(`<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...`);
             getCoinDataFromApi($(this).attr("name"), showCoinDataInCollapse);
@@ -220,7 +212,7 @@ $(function () {
                 <p>ILS price: ${coinData.market_data.current_price.ils}₪</p>
 
             `;
-        $(`#collapse_card_${coinData.id}`).html(dataToShow)
+        $(`#collapse_card_${coinData.id}`).html(dataToShow);
         $(`button[name$="${coinData.id}"]`).html(`More Info`);
     }
 
@@ -242,14 +234,14 @@ $(function () {
             localStorage.setItem("togglesOn", JSON.stringify(checkedToggles));
 
             if (numberOfCheckedToggles >= 5) {
-                var myModal = new bootstrap.Modal($("#modal"));
+                const myModal = new bootstrap.Modal($("#modal"));
                 displayModalCoins(checkedToggles);
                 myModal.show();
             }
         }
         else {//remove coin
             let checkedToggles = JSON.parse(localStorage.getItem("togglesOn"));
-            removeCoinFromLocalStorage(checkedToggles, [$(this).attr("name"), $(this).attr("symbol")])
+            removeCoinFromLocalStorage(checkedToggles, [$(this).attr("name"), $(this).attr("symbol")]);
         }
     });
 
@@ -270,7 +262,7 @@ $(function () {
             localStorage.setItem("togglesOn", JSON.stringify(checkedToggles));
         }
         else {//remove coin
-            removeCoinFromLocalStorage(checkedToggles, [$(this).attr("name"), $(this).attr("symbol")])
+            removeCoinFromLocalStorage(checkedToggles, [$(this).attr("name"), $(this).attr("symbol")]);
         }
 
         numberOfCheckedToggles = Object.keys(checkedToggles).length;
@@ -289,9 +281,7 @@ $(function () {
         // }
         // console.log(checkedToggles);
         try {
-            const equals = (a, b) =>
-                a.length === b.length &&
-                a.every((v, i) => v === b[i]);
+            const equals = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
             const found = checkedToggles.find(arr => equals(arr, coin));
             if (found !== undefined) {
                 return "checked";
@@ -307,7 +297,7 @@ $(function () {
         if (checkedToggles !== null) {
             const numberOfCheckedToggles = Object.keys(checkedToggles).length;
             if (numberOfCheckedToggles > 5) {
-                var myModal = new bootstrap.Modal($("#modal"));
+                const myModal = new bootstrap.Modal($("#modal"));
                 displayModalCoins(checkedToggles);
                 myModal.show();
             }
@@ -315,7 +305,7 @@ $(function () {
     }
 
     $("#modalOk").on("click", function () {
-        location.reload();
+        fetchData();
     });
 
 });

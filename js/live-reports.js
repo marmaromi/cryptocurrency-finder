@@ -10,20 +10,20 @@ $(function () {
         if (i + 1 !== togglesOn.length) coins += ',';
     }
 
-    setTimeout(() => {
+    const getDataFromApi = () => {
         $.ajax({
             url: `https://min-api.cryptocompare.com/data/pricemulti?fsyms=${coins}&tsyms=USD,EUR`,
             success: price => showPrice(Object.entries(price)),
             error: err => console.log(err)
         });
-    }, 0);
+    }
+
+    setTimeout(() => {
+        getDataFromApi();
+    }, 100);
 
     const myInterval = setInterval(() => {
-        $.ajax({
-            url: `https://min-api.cryptocompare.com/data/pricemulti?fsyms=${coins}&tsyms=USD,EUR`,
-            success: price => showPrice(Object.entries(price)),
-            error: err => console.log(err)
-        });
+        getDataFromApi();
     }, 2000);
 
     localStorage.setItem("myInterval", JSON.stringify(myInterval));
@@ -32,6 +32,7 @@ $(function () {
     let options = {
         animationEnabled: false,
         theme: "light2",
+        backgroundColor: "#e4e8f8",
         title: {
             text: "Live Price Charts"
         },
@@ -108,14 +109,6 @@ $(function () {
         ]
     };
 
-    const showPrice = (coinPrice) => {
-        for (let i = 0; i < coinPrice.length; i++) {
-            options.data[i].name = coinPrice[i][0]
-            options.data[i].dataPoints.push({ x: new Date(), y: coinPrice[i][1]["USD"] })
-        };
-        $("#chartContainer").CanvasJSChart(options);
-    };
-
 
     function toogleDataSeries(e) {
         if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
@@ -125,4 +118,14 @@ $(function () {
         }
         e.chart.render();
     }
+
+
+    const showPrice = (coinPrice) => {
+        for (let i = 0; i < coinPrice.length; i++) {
+            options.data[i].name = coinPrice[i][0]
+            options.data[i].dataPoints.push({ x: new Date(), y: coinPrice[i][1]["USD"] })
+        };
+        $("#chartContainer").CanvasJSChart(options);
+
+    };
 });
