@@ -5,9 +5,9 @@
 
 
  ## built with:
- -JavaScript
- -jQuery
- -AJAX
- -CSS
- -Bootstrap
- -HTML
+ - JavaScript
+ - jQuery
+ - AJAX
+ - CSS
+ - Bootstrap
+ - HTML
